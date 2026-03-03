@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHL Assessment Recommendation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #003d7a;
+            --accent-color: #00a3e0;
+            --bg-light: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+        
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-section h1 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-section p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .search-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-card textarea {
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .search-card textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.15);
+        }
+        
+        .btn-search {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 102, 204, 0.3);
+        }
+        
+        .results-section {
+            margin-top: 2rem;
+        }
+        
+        .assessment-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .assessment-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .assessment-name {
+            color: var(--secondary-color);
+            font-weight: 600;
+            font-size: 1.15rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .assessment-name a {
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        .assessment-name a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        
+        .assessment-description {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+        
+        .badge-type {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.35em 0.8em;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+        
+        .badge-type.knowledge {
+            background-color: #28a745;
+        }
+        
+        .badge-type.personality {
+            background-color: #6f42c1;
+        }
+        
+        .badge-type.ability {
+            background-color: #fd7e14;
+        }
+        
+        .badge-type.competencies {
+            background-color: #17a2b8;
+        }
+        
+        .badge-type.biodata {
+            background-color: #e83e8c;
+        }
+        
+        .badge-type.simulations {
+            background-color: #20c997;
+        }
+        
+        .meta-info {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .meta-info i {
+            margin-right: 0.3rem;
+            color: var(--primary-color);
+        }
+        
+        .meta-info span {
+            margin-right: 1.5rem;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .loading-spinner.active {
+            display: block;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+        
+        .example-queries {
+            margin-top: 1.5rem;
+        }
+        
+        .example-queries h6 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .example-query {
+            display: inline-block;
+            background: #e9ecef;
+            color: #495057;
+            padding: 0.4em 0.8em;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .example-query:hover {
+            background: #dee2e6;
+        }
+        
+        .stats-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+        
+        footer {
+            background: var(--secondary-color);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        footer a {
+            color: #adc8e6;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 2rem 0;
+            }
+            
+            .hero-section h1 {
+                font-size: 1.75rem;
+            }
+            
+            .search-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-clipboard-check me-2"></i>SHL Assessment Finder
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showApiDocs()">
+                            <i class="fas fa-code me-1"></i>API Docs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://www.shl.com/solutions/products/product-catalog/" target="_blank">
+                            <i class="fas fa-external-link-alt me-1"></i>SHL Catalog
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1><i class="fas fa-search me-2"></i>Find the Right Assessments</h1>
+                    <p>Enter a job description or natural language query to get personalized SHL assessment recommendations. Our AI-powered system analyzes your requirements and suggests the most relevant assessments from SHL's comprehensive catalog.</p>
+                </div>
+                <div class="col-lg-4 text-center d-none d-lg-block">
+                    <i class="fas fa-clipboard-list" style="font-size: 8rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Stats Bar -->
+        <div class="stats-bar" id="statsBar">
+            <div class="row">
+                <div class="col-4">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalAssessments">--</div>
+                        <div class="stat-label">Assessments</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalTypes">--</div>
+                        <div class="stat-label">Test Types</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="stat-item">
+                        <div class="stat-number">10</div>
+                        <div class="stat-label">Max Results</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Card -->
+        <div class="search-card">
+            <form id="searchForm">
+                <div class="mb-3">
+                    <label for="queryInput" class="form-label fw-bold">
+                        <i class="fas fa-search me-1"></i>Enter Job Description or Query
+                    </label>
+                    <textarea 
+                        class="form-control" 
+                        id="queryInput" 
+                        rows="5" 
+                        placeholder="Paste a job description, enter a job posting URL, or describe the role you're hiring for...
+
+Examples:
+• I am hiring for Java developers who can also collaborate effectively with my business teams.
+• Looking to hire mid-level professionals proficient in Python, SQL and JavaScript.
+• https://www.example.com/job-posting-url"
+                    ></textarea>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="submit" class="btn btn-primary btn-search">
+                        <i class="fas fa-magic me-2"></i>Get Recommendations
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="clearForm()">
+                        <i class="fas fa-eraser me-1"></i>Clear
+                    </button>
+                </div>
+            </form>
+            
+            <div class="example-queries">
+                <h6><i class="fas fa-lightbulb me-1"></i>Try these examples:</h6>
+                <span class="example-query" onclick="setQuery('I am hiring for Java developers who can also collaborate effectively with my business teams.')">Java Developer + Collaboration</span>
+                <span class="example-query" onclick="setQuery('Looking to hire mid-level professionals who are proficient in Python, SQL and JavaScript.')">Python/SQL/JS Developer</span>
+                <span class="example-query" onclick="setQuery('I am hiring for an analyst and want applications to screen using Cognitive and personality tests')">Analyst with Cognitive Tests</span>
+                <span class="example-query" onclick="setQuery('Need a customer service representative who is empathetic and good at problem solving')">Customer Service Rep</span>
+                <span class="example-query" onclick="setQuery('Looking for a project manager with strong leadership and communication skills')">Project Manager</span>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Analyzing your requirements...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h4 class="mb-3">
+                <i class="fas fa-list-check me-2"></i>Recommended Assessments 
+                <span class="badge bg-primary" id="resultsCount">0</span>
+            </h4>
+            <div id="resultsContainer"></div>
+        </div>
+
+        <!-- No Results -->
+        <div class="no-results" id="noResults" style="display: none;">
+            <i class="fas fa-search"></i>
+            <h5>No Results Found</h5>
+            <p>Try adjusting your query or use a more detailed job description.</p>
+        </div>
+    </div>
+
+    <!-- API Docs Modal -->
+    <div class="modal fade" id="apiDocsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-code me-2"></i>API Documentation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Health Check Endpoint</h6>
+                    <pre class="bg-light p-3 rounded"><code>GET /health
+
+Response:
+{
+    "status": "healthy"
+}</code></pre>
+
+                    <h6 class="mt-4">Recommendation Endpoint</h6>
+                    <pre class="bg-light p-3 rounded"><code>POST /recommend
+Content-Type: application/json
+
+Request Body:
+{
+    "query": "Job description or natural language query"
+}
+
+Response:
+{
+    "recommended_assessments": [
+        {
+            "url": "https://www.shl.com/...",
+            "name": "Assessment Name",
+            "adaptive_support": "Yes/No",
+            "description": "Assessment description",
+            "duration": 30,
+            "remote_support": "Yes/No",
+            "test_type": ["Knowledge & Skills", ...]
+        }
+    ]
+}</code></pre>
+
+                    <h6 class="mt-4">Example cURL Request</h6>
+                    <pre class="bg-light p-3 rounded"><code>curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Looking for Java developers"}' \
+  http://localhost:5000/recommend</code></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>SHL Assessment Recommendation System</h5>
+                    <p class="mb-0">AI-powered assessment recommendations for hiring managers and recruiters.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">
+                        <a href="https://www.shl.com" target="_blank">SHL Website</a> | 
+                        <a href="https://www.shl.com/solutions/products/product-catalog/" target="_blank">Product Catalog</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load stats on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+        });
+
+        function loadStats() {
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalAssessments').textContent = data.total_assessments || '--';
+                    document.getElementById('totalTypes').textContent = (data.test_types || []).length || '--';
+                })
+                .catch(err => console.error('Failed to load stats:', err));
+        }
+
+        function setQuery(text) {
+            document.getElementById('queryInput').value = text;
+            document.getElementById('queryInput').focus();
+        }
+
+        function clearForm() {
+            document.getElementById('queryInput').value = '';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('noResults').style.display = 'none';
+        }
+
+        function showApiDocs() {
+            const modal = new bootstrap.Modal(document.getElementById('apiDocsModal'));
+            modal.show();
+        }
+
+        function getTypeClass(type) {
+            const typeMap = {
+                'Knowledge & Skills': 'knowledge',
+                'Personality & Behaviour': 'personality',
+                'Ability & Aptitude': 'ability',
+                'Competencies': 'competencies',
+                'Biodata & Situational Judgement': 'biodata',
+                'Simulations': 'simulations'
+            };
+            return typeMap[type] || '';
+        }
+
+        function createAssessmentCard(assessment, index) {
+            const types = (assessment.test_type || []).map(t => 
+                `<span class="badge-type ${getTypeClass(t)}">${t}</span>`
+            ).join('');
+
+            return `
+                <div class="assessment-card">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="assessment-name">
+                                <span class="badge bg-secondary me-2">${index}</span>
+                                <a href="${assessment.url}" target="_blank">${assessment.name}</a>
+                            </div>
+                            <p class="assessment-description">${assessment.description || 'No description available.'}</p>
+                            <div class="mb-2">
+                                ${types}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="meta-info">
+                                <div class="mb-2">
+                                    <span><i class="fas fa-clock"></i> ${assessment.duration || 'N/A'} min</span>
+                                </div>
+                                <div class="mb-2">
+                                    <span><i class="fas fa-globe"></i> Remote: ${assessment.remote_support}</span>
+                                </div>
+                                <div>
+                                    <span><i class="fas fa-sliders-h"></i> Adaptive: ${assessment.adaptive_support}</span>
+                                </div>
+                            </div>
+                            <a href="${assessment.url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                <i class="fas fa-external-link-alt me-1"></i>View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Form submission
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const query = document.getElementById('queryInput').value.trim();
+            if (!query) {
+                alert('Please enter a job description or query.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingSpinner').classList.add('active');
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('noResults').style.display = 'none';
+
+            try {
+                const response = await fetch('/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query: query })
+                });
+
+                const data = await response.json();
+
+                // Hide loading
+                document.getElementById('loadingSpinner').classList.remove('active');
+
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+
+                const assessments = data.recommended_assessments || [];
+                
+                if (assessments.length === 0) {
+                    document.getElementById('noResults').style.display = 'block';
+                    return;
+                }
+
+                // Display results
+                const container = document.getElementById('resultsContainer');
+                container.innerHTML = assessments.map((a, i) => createAssessmentCard(a, i + 1)).join('');
+                
+                document.getElementById('resultsCount').textContent = assessments.length;
+                document.getElementById('resultsSection').style.display = 'block';
+
+                // Scroll to results
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                document.getElementById('loadingSpinner').classList.remove('active');
+                console.error('Error:', error);
+                alert('Failed to get recommendations. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
